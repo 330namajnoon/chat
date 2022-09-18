@@ -78,7 +78,7 @@ io.on('connection' , (client) => {
 
     client.on("data_load",(databasee) => {
         fs.readFile("./database/users.txt",(err,dataa) => {
-            client.emit("data_load",({database: databasee,data: dataa.toString()}))
+            client.emit("data_load",databasee,dataa.toString())
         })
     })
    
