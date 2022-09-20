@@ -375,7 +375,7 @@ function RabetKarbari () {
                 tarih: ``,
             }
             this.paszamine = CrateElement({id: "msg",name: "div",inerhtml: this.data.msg,style: this.styles.paszamine})
-            this.fasele = CrateElement({name: "div",inerhtml: "salam",style: "width: 100px;height: 10px"});
+            this.fasele = CrateElement({name: "div",style: "width: 100px;height: 10px"});
             if (this.data.id == user.id) {
                 this.paszamine.style.cssText = `padding:3px 3px 3px 3px;width: auto; height: auto; font-size: 20px; max-width: 80%; border-radius: 5px 0px 5px 5px; background-color: ${color.c_1}; color: ${color.c_4};position: relative;margin: 5px 5px 5px 5px ;float: right;text-align: left;display: block;`
                 this.fasele.style.cssText = "width: 100px;height: 10px;float: right";
@@ -390,7 +390,7 @@ function RabetKarbari () {
        
         this.paszamine_s.appendChild(msg.paszamine);
         this.paszamine_s.appendChild(msg.fasele);
-        msg.fasele.style.width = (innerWidth-msg.paszamine.getBoundingClientRect().width-10)+"px";
+        msg.fasele.style.width = innerWidth+"px";
         msg.fasele.style.height = 1+"px"; 
 
 
