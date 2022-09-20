@@ -1,3 +1,26 @@
+////////  abzar
+function ChengeObject(data = {element: "araye",method: "id-name-?",value: "string-number",method_s: "id-name-",value_s: "string-number",value_method: "push-string-number"}) {
+    let element = data.element;
+    let method = data.method;
+    let value = data.value;
+    let method_s = data.method_s;
+    let value_s = data.value_s;
+    let value_method = data.value_method;
+    for (let index = 0; index < element.length; index++) {
+        let element_s = element[index];
+        if (element_s[method] == value) {
+            if(value_method == "push") {
+                element_s[method_s].push(value_s);
+            }else {
+                element_s[method_s] = value_s;
+            }
+        }
+        
+    }
+    return element;
+}
+
+
 //////  server
 
 const path = require("path");
@@ -65,7 +88,7 @@ io.on('connection' , (client) => {
         fs.readFile("./database/users.txt", (err,data) => {
             let data_ = JSON.parse(data.toString());
             let id = ID(JSON.parse(data.toString()));
-            let data_push = {name: dataa.name,sifre: data.sifre,img: dataa.img,id: id,dil: "ingilizce",color: 0};
+            let data_push = {name: dataa.name,sifre: data.sifre,img: dataa.img,id: id,dil: "ingilizce",color: 0,chats: []};
             data_.push(data_push);
 
             fs.writeFile("./database/users.txt",JSON.stringify(data_), (err)=> {
@@ -81,7 +104,30 @@ io.on('connection' , (client) => {
             client.emit("data_load",databasee,dataa.toString())
         })
     })
-   
+
+    
+    client.on("user_like",(database = "",users = {room_name: "",room_users: []}) => {
+        let users_ = users;
+        fs.readFile(`./database/${database}.txt`,(err,data) => {
+            let data_users = JSON.parse(data.toString());
+           
+            ChengeObject({element: data_users,method: "id",value: users_.room_users[0].id,method_s: "chats",value_s: {id: users_.room_users[1].id,room_name: users_.room_name,user: users_.room_users[1]},value_method: "push"});
+            ChengeObject({element: data_users,method: "id",value: users_.room_users[1].id,method_s: "chats",value_s: {id: users_.room_users[0].id,room_name: users_.room_name,user: users_.room_users[0]},value_method: "push"});
+        
+            fs.writeFile(`./database/${database}.txt`,JSON.stringify(data_users),(err) => {
+                if(err)throw err;
+                console.log("saved");
+                let arayee = []
+                fs.writeFile(`./database/${users_.room_name}.txt`,JSON.stringify(arayee),(err) => {
+                    if(err) throw err;
+                    console.log("saved");
+                    io.emit("user_like",database,JSON.stringify(data_users),users);
+                })
+            })
+            
+           
+        })
+    })
     
     client.on('disconnect', () => {
         console.log("new websocket disconnected")

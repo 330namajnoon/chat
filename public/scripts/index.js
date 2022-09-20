@@ -1,9 +1,9 @@
 ///////  imports
-import {CrateElement} from "./acharfaranse.js";
+import {CrateElement,SearchObject,ChengeObject} from "./acharfaranse.js";
 import {Sigin} from "./sigin.js";
 
 /////// elements
-
+let user = JSON.parse(localStorage.getItem("chat_user"));
 let body,sigin,dil,color,rabetkarbari;
 
 ///////  data load
@@ -30,6 +30,7 @@ let diller = {
         mesajlar: "Messages",
     }
 }
+
 let socket = io();
 
 let datas = {
@@ -39,18 +40,29 @@ let datas = {
 }
 
 // socket.emit("data_load","users")
-socket.on("data_load",(database,data) => {
+socket.on("data_load",(database,data,note) => {
     if(database == "users" && data !== "" ) {
         datas[database+"_data"] = JSON.parse(data);
         rabetkarbari.navar_abzar.namayesh_profilha();
-        console.log(datas)
+    
     }
 
 })
-
-window.addEventListener("click",() => {
-    rabetkarbari.navar_abzar.namayesh_profilha();
+socket.on("user_like",(database,data,users) => {
+    if(data != "") {
+        datas.users_data = JSON.parse(data);
+        user = SearchObject({element: datas.users_data,method: "id",value: user.id});
+        localStorage.setItem("chat_user",JSON.stringify(user));
+        rabetkarbari.navar_abzar.namayesh_profilha();
+    }
+    let durum = SearchObject({element: users.room_users,method: "id",value: user.id});        
 })
+
+
+
+// window.addEventListener("click",() => {
+//     rabetkarbari.navar_abzar.namayesh_profilha();
+// })
 
 
 
@@ -78,7 +90,7 @@ function RabetKarbari () {
         this.paszamine = CrateElement({name: "div",style: this.styles.paszamine});
         this.sartitr = CrateElement({name: "div",style: this.styles.sartitr});
         this.meno_span = CrateElement({name: "span",inerhtml: "menu",clas: "material-symbols-outlined",style: this.styles.spans});
-        this.search_span = CrateElement({name: "span",inerhtml: "search",clas: "material-symbols-outlined",style: this.styles.spans+";float: right;margin-right: 2%"});
+        this.search_span = CrateElement({name: "span",inerhtml: "search",clas: "material-symbols-outlined",style: this.styles.spans+";float: right;margin-right: 2%;display: none"});
         this.appname = CrateElement({name: "h1",inerhtml: "Sinagram",style: this.styles.spans+";font-size: 20px;margin-left: 4%"});
         this.paszamine_s = CrateElement({name: "div",style: this.styles.paszamine_s});
         this.profiller_dosyasi = CrateElement({name: "div",inerhtml: dil.mesajlar,style: this.styles.dosyalar});
@@ -93,14 +105,19 @@ function RabetKarbari () {
         this.sartitr.appendChild(this.search_span);
         /////// events
         this.chat_dosyasi.addEventListener("click", (e) => {
+            e.stopPropagation();
+            
             this.chat_dosyasi.style.backgroundColor = color.c_1;
             this.profiller_dosyasi.style.backgroundColor = color.c_2;
-            this.search_span.style.display = "block";
+            this.search_span.style.display = "none";
+            rabetkarbari.navar_abzar.namayesh_profilha();
         })
         this.profiller_dosyasi.addEventListener("click", (e) => {
+            e.stopPropagation();
             this.chat_dosyasi.style.backgroundColor = color.c_2;
             this.profiller_dosyasi.style.backgroundColor = color.c_1;
-            this.search_span.style.display = "none";
+            this.search_span.style.display = "block";
+
         })
         ///////  resize
         
@@ -123,47 +140,105 @@ function RabetKarbari () {
       
     }
     NavarAbzar.prototype.namayesh_profilha = function() {
-        
-        let id;
+        this.paszamine_s.innerHTML = "";
+        let no;
         let shomar = 0;
-        while(shomar < 1) {
-            let durum = true;
-            let number = Math.floor(Math.random()*datas.users_data.length);
-            
-            let id_ = datas.users_data[number].id;
-            datas.secilenler.forEach(e => {
-                if(e.id !== id_) {
-                    durum = false;
+        if(datas.secilenler.length < datas.users_data.length-1 && user.chats.length < datas.users_data.length-1) {
+            while(shomar < 1) {
+                let durum = true;
+                let no_random = Math.floor(Math.random()*datas.users_data.length);
+                let no_e = datas.users_data[no_random];
+                let no_s = SearchObject({element: datas.secilenler,method: "id",value: no_e.id});
+                let user_chats = SearchObject({element: user.chats,method: "id",value: no_e.id});
+               
+                if(no_e.id != user.id && user_chats == undefined) {
+                    if(no_s == undefined ||  datas.secilenler.length < 1) {
+                        shomar++;
+                        no = no_random;
+                    }
                 }
-            })
-            if(durum == false ||  datas.secilenler.length < 1) {
-                shomar++;
-                id = number;
             }
-        }
-
+        
         function Profil(user_data) {
             this.data = user_data;
-            console.log(this.data)
+           
             this.styles = {
                 paszamine: `position: absolute;width: 100%; height: 100%`,
-                img: `width: 100%; height: 100%;object-fit: cover`,
-                spans: ``
+                paszamine_span: `float:left;position: absolute;width: 100%; height: auto;top:70%`,
+                img: `width: 100%; height: 100%;object-fit: cover;position: absolute;left: 0px`,
+                spans: `margin-left: 10%;float: left; font-size: 50px;color: ${color.c_4};background-color: ${color.c_1};border-radius: 20vw 20vw 20vw 20vw;padding: 3px 3px 3px 3px`,
+                h1: `position: absolute; width: 100% ;text-align: center; color: ${color.c_1};background-color: ${color.c_1+"40"};top:5%`,
             }
             this.paszamine = CrateElement({name: "div",id: "paszamine",style: this.styles.paszamine});
+            this.paszamine_spans = CrateElement({name: "div",style: this.styles.paszamine_span})
             this.img = CrateElement({name: "img",src: "../images/"+this.data.img,id: "img",style: this.styles.img});
-            
-            //////  apendchild
+            this.profil_name = CrateElement({name:"h1",inerhtml:this.data.name,style: this.styles.h1})
+            this.tick = CrateElement({name:"sapn",inerhtml:"done_outline",clas: "material-symbols-outlined",style: this.styles.spans+";float: right;margin-right: 10%"})
+            this.sil = CrateElement({name:"sapn",inerhtml:"close",clas: "material-symbols-outlined",style: this.styles.spans})
+            //////  events
+            this.durum = false;
+            this.org = {
+                x: 0,
+                y: 0
+            };
+            this.paszamine.addEventListener("touchstart",(e) => {
+                this.org.x = e.touches[0].pageX-this.paszamine.getBoundingClientRect().x;
+                this.org.y = this.paszamine.getBoundingClientRect().y;
+                this.durum = true;
 
+            })
+            this.paszamine.addEventListener("touchmove",(e) => {
+                if(this.durum == true){
+                    let x = e.touches[0].pageX;
+                    this.paszamine.style.left = (x-this.org.x)+"px";
+                    this.paszamine.style.top = this.org.y+"px";
+                }
+            })
+            this.paszamine.addEventListener("touchend",(e) => {
+                this.durum = false;
+                if(this.paszamine.getBoundingClientRect().x < this.org.x) {
+                    this.unlike();
+                    rabetkarbari.navar_abzar.namayesh_profilha();
+                }else{
+                    this.like();
+                }
+                rabetkarbari.navar_abzar.namayesh_profilha();
+
+            })
+            this.sil.addEventListener("click",(e) => {
+                e.stopPropagation();
+                this.unlike();
+                rabetkarbari.navar_abzar.namayesh_profilha();
+            })
+            this.tick.addEventListener("click",(e) => {
+                e.stopPropagation();
+                this.like();
+                
+            })
+            
+        }
+        Profil.prototype.like = function() {
+            
+
+            socket.emit("user_like","users",{room_name: user.id+this.data.id,room_users: [{name: user.name,id: user.id,img: user.img},{name: this.data.name,id:this.data.id,img:this.data.img}]});
+        }
+        Profil.prototype.unlike = function() {
+            datas.secilenler.push(this.data);
         }
         Profil.prototype.Crate = function(element) {
-            element.innerHTML = "";
             element.appendChild(this.paszamine);
             this.paszamine.appendChild(this.img);
-            console.log(this.paszamine_s);
+            this.paszamine.appendChild(this.paszamine_spans);
+            this.paszamine.appendChild(this.profil_name);
+            this.paszamine_spans.appendChild(this.sil);
+            this.paszamine_spans.appendChild(this.tick);
+          
         }
-        let profil = new Profil(datas.users_data[id]);
+    
+        let profil = new Profil(datas.users_data[no]);
         profil.Crate(this.paszamine_s);
+        }
+       
     }
     this.navar_abzar = new NavarAbzar();
 
@@ -184,7 +259,7 @@ RabetKarbari.prototype.Crate = function() {
     socket.emit("data_load","users")
 }
 
-const user = JSON.parse(localStorage.getItem("chat_user"));
+
 
 if (user == null) {
     sigin = new Sigin({apendchild_element: body});

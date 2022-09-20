@@ -22,7 +22,44 @@ function CrateElement(data = {name: "div",inerhtml: "",id: "",clas: "",type: "",
     return element;
 }
 
+function SearchObject(data = {element: "araye",method: "id-name...",value: "number-string"}) {
+    let element = data.element;
+    let method = data.method;
+    let value = data.value;
+    let bulunan = undefined;
+    element.forEach(e => {
+        if(e[method] == value) {
+            bulunan = e;
+        }
+    })
+    return bulunan;
+}
+
+function ChengeObject(data = {element: "araye",method: "id-name-?",value: "string-number",method_s: "id-name-",value_s: "string-number",value_method: "push-string-number"}) {
+    let element = data.element;
+    let method = data.method;
+    let value = data.value;
+    let method_s = data.method_s;
+    let value_s = data.value_s;
+    let value_method = data.value_method;
+    for (let index = 0; index < element.length; index++) {
+        let element_s = element[index];
+        if (element_s[method] == value) {
+            if(value_method == "push") {
+                element_s[method_s].push(value_s);
+            }else {
+                element_s[method_s] = value_s;
+            }
+        }
+        
+    }
+    return element;
+}
 
 
 
-export {CrateElement,xy,colors};
+
+
+
+
+export {CrateElement,SearchObject,ChengeObject,xy,colors};
