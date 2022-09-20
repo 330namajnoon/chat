@@ -83,7 +83,7 @@ function RabetKarbari () {
         this.styles = {
             paszamine: "float: left;position: absolute;background-color: #d07c7c;width: 100% ;height: 100% ;float: none;text-align: center;",
             sartitr: `float: left;background-color: ${color.c_1};width: 100% ;height: 6% ;`,
-            paszamine_s: `float:left;background-color: ${color.c_4};width: 100% ;height: 94% ;`,
+            paszamine_s: `overflow-y: auto;float:left;background-color: ${color.c_4};width: 100% ;height: 94% ;`,
             dosyalar: `padding: 1% 0px 1% 0px ;color: ${color.c_3};position: absolute;background-color: ${color.c_2};width: 40% ;height: auto% ;font-size: 15px;top: 6%;margin: 0% 0px 0px 7% ;border-radius: 0px 0px 2vw 2vw ;float: left;display: block;`,
             spans: `color: ${color.c_4};font-size: 20px; float: left;font-size: 25px ;margin: 1% 0px 0px 2% ;`,
         }
@@ -110,14 +110,15 @@ function RabetKarbari () {
             this.chat_dosyasi.style.backgroundColor = color.c_1;
             this.profiller_dosyasi.style.backgroundColor = color.c_2;
             this.search_span.style.display = "none";
-            rabetkarbari.navar_abzar.namayesh_profilha();
+            this.namayesh_profilha();
+
         })
         this.profiller_dosyasi.addEventListener("click", (e) => {
             e.stopPropagation();
             this.chat_dosyasi.style.backgroundColor = color.c_2;
             this.profiller_dosyasi.style.backgroundColor = color.c_1;
             this.search_span.style.display = "block";
-
+            this.namayesh_payamha();
         })
         ///////  resize
         
@@ -159,7 +160,7 @@ function RabetKarbari () {
                 }
             }
         
-        function Profil(user_data) {
+        function User(user_data) {
             this.data = user_data;
            
             this.styles = {
@@ -217,15 +218,15 @@ function RabetKarbari () {
             })
             
         }
-        Profil.prototype.like = function() {
+        User.prototype.like = function() {
             
 
             socket.emit("user_like","users",{room_name: user.id+this.data.id,room_users: [{name: user.name,id: user.id,img: user.img},{name: this.data.name,id:this.data.id,img:this.data.img}]});
         }
-        Profil.prototype.unlike = function() {
+        User.prototype.unlike = function() {
             datas.secilenler.push(this.data);
         }
-        Profil.prototype.Crate = function(element) {
+        User.prototype.Crate = function(element) {
             element.appendChild(this.paszamine);
             this.paszamine.appendChild(this.img);
             this.paszamine.appendChild(this.paszamine_spans);
@@ -235,12 +236,73 @@ function RabetKarbari () {
           
         }
     
-        let profil = new Profil(datas.users_data[no]);
+        let profil = new User(datas.users_data[no]);
         profil.Crate(this.paszamine_s);
         }
        
     }
+    NavarAbzar.prototype.namayesh_payamha = function() {
+        this.paszamine_s.innerHTML = "";
+        function Profiles(data) {
+            this.data = data;
+            this.styles = {
+                paszamine: `border: solid 2px ${color.c_1};border-radius:10vw 10vw 10vw 10vw;float:left;margin-top: 5px;margin-left: 3%;width: 90%;height: auto;background-color: ${color.c_2};padding: 3px 3px 3px 3px`,
+                name: `margin: 9px 0 0 5%;float: left; font-size: 20px; color: ${color.c_4};`,
+                img: `margin-left: 0%;float: left;object-fit: cover;width: 40px;height: 40px;border-radius: 10vw 10vw 10vw 10vw`,
+            }
+            this.paszamine = CrateElement({name: "div",style: this.styles.paszamine})
+            this.img = CrateElement({name: "img",src: "../images/"+this.data.user.img,style: this.styles.img})
+            this.name = CrateElement({name: "div",inerhtml: this.data.user.name,style: this.styles.name});
+            
+            this.Crate();
+            this.paszamine.addEventListener("click", () => {
+                rabetkarbari.chat_room = new Chat_Room(this.data);
+            })
+        }
+        Profiles.prototype.Crate = function() {
+            this.paszamine.appendChild(this.img);
+            this.paszamine.appendChild(this.name);
+        }
+        
+        let profiles = [];
+        let fasele = CrateElement({name: "div",style: "height: 5%"});
+        user.chats.forEach(e => {
+            profiles.push(new Profiles(e));
+        });
+        this.paszamine_s.appendChild(fasele);
+        profiles.forEach(e => {
+            this.paszamine_s.appendChild(e.paszamine);
+        })
+        console.log(profiles)
+
+    }
     this.navar_abzar = new NavarAbzar();
+    /////////  chat room
+    function Chat_Room(data) {
+        this.data = data;
+        rabetkarbari.navar_abzar.paszamine_s.innerHTML = "";
+        this.styles = {
+            paszamine: ``,
+            sar: ``,
+            img: ``,
+            name: ``,
+            input_text: ``,
+            input_ersal: ``,
+            paszamine_s: ``,
+            paszamine_inputs: ``,
+        }
+        this.paszamine = CrateElement({name: "div",style: this.styles.paszamine,id: "ch_paszamine"});
+        this.paszamine = CrateElement({name: "div",style: this.styles.paszamine_s,id: "ch_paszamine_s"});
+        this.paszamine = CrateElement({name: "div",style: this.styles.paszamine_inputs,id: "ch_paszamine_inputs"});
+        this.paszamine = CrateElement({name: "div",style: this.styles.sar,id: "ch_sar"});
+        this.paszamine = CrateElement({name: "img",src: "../images/"+this.data.user.img,style: this.styles.img,id: "ch_img"});
+        this.paszamine = CrateElement({name: "div",inerhtml: this.data.user.name,style: this.styles.name,id: "ch_name"});
+        this.paszamine = CrateElement({name: "input",type: "text",style: this.styles.input_text,id: "ch_text"});
+        this.paszamine = CrateElement({name: "input",type: "button",value: "Send",style: this.styles.input_ersal,id: "ch_ersal"});
+
+    }
+
+    this.chat_room;
 
 
     this.Crate();
