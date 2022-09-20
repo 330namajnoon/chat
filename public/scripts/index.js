@@ -282,24 +282,45 @@ function RabetKarbari () {
         this.data = data;
         rabetkarbari.navar_abzar.paszamine_s.innerHTML = "";
         this.styles = {
-            paszamine: ``,
-            sar: ``,
-            img: ``,
-            name: ``,
-            input_text: ``,
-            input_ersal: ``,
-            paszamine_s: ``,
-            paszamine_inputs: ``,
+            paszamine: `;position: relative;background-color: ${color.c_4};width: 100% ;height: 100% ;left: 0% ;top: 0% ;float: left;text-align: center;`,
+            sar: `position: relative; background-color:${color.c_2}; width: 100%; height: 10%; float: left;;margin: 10% 0px 0px 0px ;`,
+            img: `;width: 50px ;height: 50px ;margin: 0px 0px 0px 3% ;border-radius: 20vw 20vw 20vw 20vw ;float: left;object-fit: cover;`,
+            name: `;color: ${color.c_3};font-size: 20px ;margin: 7px 0px 0px 20% ;float: left;`,
+            input_text: `;color: ${color.c_1};background-color: ${color.c_3};width: 80% ;font-size: 15px ;border: solid 2px #c95e5e;padding: 4px 0px 4px 0px `,
+            input_ersal: `;color: ${color.c_3};background-color: ${color.c_1};width: 18% ;font-size: 15px ;border: solid 2px ${color.c_1};padding: 4px 0px 4px 0px ;`,
+            paszamine_s: `;position: relative;background-color: ${color.c_4};width: 100% ;height: 80% ;float: left;overflow-y: auto;`,
+            paszamine_inputs: `;position: absolute;width: 100% ;height: auto ;top: 90% ;`,
         }
         this.paszamine = CrateElement({name: "div",style: this.styles.paszamine,id: "ch_paszamine"});
-        this.paszamine = CrateElement({name: "div",style: this.styles.paszamine_s,id: "ch_paszamine_s"});
-        this.paszamine = CrateElement({name: "div",style: this.styles.paszamine_inputs,id: "ch_paszamine_inputs"});
-        this.paszamine = CrateElement({name: "div",style: this.styles.sar,id: "ch_sar"});
-        this.paszamine = CrateElement({name: "img",src: "../images/"+this.data.user.img,style: this.styles.img,id: "ch_img"});
-        this.paszamine = CrateElement({name: "div",inerhtml: this.data.user.name,style: this.styles.name,id: "ch_name"});
-        this.paszamine = CrateElement({name: "input",type: "text",style: this.styles.input_text,id: "ch_text"});
-        this.paszamine = CrateElement({name: "input",type: "button",value: "Send",style: this.styles.input_ersal,id: "ch_ersal"});
+        this.paszamine_s = CrateElement({name: "div",style: this.styles.paszamine_s,id: "ch_paszamine_s"});
+        this.paszamine_inputs = CrateElement({name: "div",style: this.styles.paszamine_inputs,id: "ch_paszamine_inputs"});
+        this.sar = CrateElement({name: "div",style: this.styles.sar,id: "ch_sar"});
+        this.img = CrateElement({name: "img",src: "../images/"+this.data.user.img,style: this.styles.img,id: "ch_img"});
+        this.name = CrateElement({name: "div",inerhtml: this.data.user.name,style: this.styles.name,id: "ch_name"});
+        // this.durum = CrateElement({name: "div",style: this.styles.name+";font-size: 4px;"})
+        this.input_text = CrateElement({name: "input",type: "text",style: this.styles.input_text,id: "ch_text"});
+        this.input_ersal = CrateElement({name: "input",type: "button",value: "Send",style: this.styles.input_ersal,id: "ch_ersal"});
+        this.Crate();
 
+        //////////  styles
+        function resize(element,paszamine) {
+            element.style.top = (innerHeight-element.getBoundingClientRect().height-paszamine.getBoundingClientRect().y)+"px";
+        }
+        resize(this.paszamine_inputs,this.paszamine);
+        window.addEventListener("resize",()=> {
+            resize(this.paszamine_inputs,this.paszamine);
+        })
+        console.log(this.paszamine_inputs.getBoundingClientRect().height)
+    }
+    Chat_Room.prototype.Crate = function() {
+        rabetkarbari.navar_abzar.paszamine_s.appendChild(this.paszamine);
+        this.paszamine.appendChild(this.sar);
+        this.paszamine.appendChild(this.paszamine_s);
+        this.paszamine.appendChild(this.paszamine_inputs);
+        this.sar.appendChild(this.img);
+        this.sar.appendChild(this.name);
+        this.paszamine_inputs.appendChild(this.input_text);
+        this.paszamine_inputs.appendChild(this.input_ersal);
     }
 
     this.chat_room;
