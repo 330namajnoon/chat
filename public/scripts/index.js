@@ -135,9 +135,9 @@ function RabetKarbari () {
         }
         resize(this.paszamine);
     
-        window.addEventListener("resize",() => {
-            resize(this.paszamine);
-        })
+        // window.addEventListener("resize",() => {
+        //     resize(this.paszamine);
+        // })
       
     }
     NavarAbzar.prototype.namayesh_profilha = function() {
