@@ -49,9 +49,9 @@ function Sigin(data = {apendchild_element: null}) {
     }
     resize(this.paszamine_s,this.img_paszamine);
 
-    window.addEventListener("resize",() => {
-        resize(this.paszamine_s,this.img_paszamine);
-    })
+    // window.addEventListener("resize",() => {
+    //     resize(this.paszamine_s,this.img_paszamine);
+    // })
 
     this.img.addEventListener("click",() => {
         this.file.click();

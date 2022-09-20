@@ -3,6 +3,11 @@ import {CrateElement,SearchObject,ChengeObject} from "./acharfaranse.js";
 import {Sigin} from "./sigin.js";
 
 /////// elements
+let durum = {
+    durum: "profiles",
+    profiles: "profiles",
+    chats: "chats",
+}
 let user = JSON.parse(localStorage.getItem("chat_user"));
 let body,sigin,dil,color,rabetkarbari;
 
@@ -58,8 +63,18 @@ socket.on("user_like",(database,data,users) => {
     let durum = SearchObject({element: users.room_users,method: "id",value: user.id});        
 })
 
-
-
+socket.on("msg_load",(data) => {
+    if (data != "") {
+        let data_ = JSON.parse(data);
+        rabetkarbari.chat_room.masege_loader(data_);
+    }
+})
+socket.on("msg_send",(room_name,data) => {
+    let data_ = data;
+    if (data != "" && durum.durum == room_name) {
+        rabetkarbari.chat_room.ersalepayam(data_);
+    }
+})
 // window.addEventListener("click",() => {
 //     rabetkarbari.navar_abzar.namayesh_profilha();
 // })
@@ -82,9 +97,9 @@ function RabetKarbari () {
     function NavarAbzar () {
         this.styles = {
             paszamine: "float: left;position: absolute;background-color: #d07c7c;width: 100% ;height: 100% ;float: none;text-align: center;",
-            sartitr: `float: left;background-color: ${color.c_1};width: 100% ;height: 6% ;`,
-            paszamine_s: `overflow-y: auto;float:left;background-color: ${color.c_4};width: 100% ;height: 94% ;`,
-            dosyalar: `padding: 1% 0px 1% 0px ;color: ${color.c_3};position: absolute;background-color: ${color.c_2};width: 40% ;height: auto% ;font-size: 15px;top: 6%;margin: 0% 0px 0px 7% ;border-radius: 0px 0px 2vw 2vw ;float: left;display: block;`,
+            sartitr: `float: left;background-color: ${color.c_1};width: 100% ;height: 30px ;`,
+            paszamine_s: `overflow-y: auto;float:left;background-color: ${color.c_4};width: 100% ;height: ${innerHeight-30}px ;`,
+            dosyalar: `padding: 1% 0px 1% 0px ;color: ${color.c_3};position: absolute;background-color: ${color.c_2};width: 40% ;height: auto% ;font-size: 15px;top: 30px;margin: 0% 0px 0px 7% ;border-radius: 0px 0px 2vw 2vw ;float: left;display: block;`,
             spans: `color: ${color.c_4};font-size: 20px; float: left;font-size: 25px ;margin: 1% 0px 0px 2% ;`,
         }
         this.paszamine = CrateElement({name: "div",style: this.styles.paszamine});
@@ -112,6 +127,8 @@ function RabetKarbari () {
             this.search_span.style.display = "none";
             this.namayesh_profilha();
 
+            durum.durum = durum.profiles;
+
         })
         this.profiller_dosyasi.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -119,6 +136,8 @@ function RabetKarbari () {
             this.profiller_dosyasi.style.backgroundColor = color.c_1;
             this.search_span.style.display = "block";
             this.namayesh_payamha();
+
+            durum.durum = durum.chats;
         })
         ///////  resize
         
@@ -280,6 +299,7 @@ function RabetKarbari () {
     /////////  chat room
     function Chat_Room(data) {
         this.data = data;
+        console.log(this.data);
         rabetkarbari.navar_abzar.paszamine_s.innerHTML = "";
         this.styles = {
             paszamine: `;position: relative;background-color: ${color.c_4};width: 100% ;height: 100% ;left: 0% ;top: 0% ;float: left;text-align: center;`,
@@ -288,7 +308,7 @@ function RabetKarbari () {
             name: `;color: ${color.c_3};font-size: 20px ;margin: 7px 0px 0px 20% ;float: left;`,
             input_text: `;color: ${color.c_1};background-color: ${color.c_3};width: 80% ;font-size: 15px ;border: solid 2px #c95e5e;padding: 4px 0px 4px 0px `,
             input_ersal: `;color: ${color.c_3};background-color: ${color.c_1};width: 18% ;font-size: 15px ;border: solid 2px ${color.c_1};padding: 4px 0px 4px 0px ;`,
-            paszamine_s: `;position: relative;background-color: ${color.c_4};width: 100% ;height: 80% ;float: left;overflow-y: auto;`,
+            paszamine_s: `;position: relative;background-color: ${color.c_4};width: 100% ;height: 80% ;float: right;overflow-y: auto;`,
             paszamine_inputs: `;position: absolute;width: 100% ;height: auto ;top: 90% ;`,
         }
         this.paszamine = CrateElement({name: "div",style: this.styles.paszamine,id: "ch_paszamine"});
@@ -304,13 +324,26 @@ function RabetKarbari () {
 
         //////////  styles
         function resize(element,paszamine) {
-            element.style.top = (innerHeight-element.getBoundingClientRect().height-paszamine.getBoundingClientRect().y)+"px";
+            element.style.top = (innerHeight-element.getBoundingClientRect().height-paszamine.getBoundingClientRect().y*1.2)+"px";
         }
         resize(this.paszamine_inputs,this.paszamine);
         window.addEventListener("resize",()=> {
             resize(this.paszamine_inputs,this.paszamine);
         })
-        console.log(this.paszamine_inputs.getBoundingClientRect().height)
+        this.input_ersal.addEventListener("click",(e) => {
+            e.stopPropagation();
+            if (this.input_text.value != "") {
+                let data = {
+                    id: user.id,
+                    msg: this.input_text.value,
+                }
+                socket.emit("msg_send",this.data.room_name,data);
+                this.input_text.value = "";
+            }
+        })
+        this.paszamine_s.addEventListener("scroll",(e) => {
+            console.log(e);
+        })       
     }
     Chat_Room.prototype.Crate = function() {
         rabetkarbari.navar_abzar.paszamine_s.appendChild(this.paszamine);
@@ -321,6 +354,46 @@ function RabetKarbari () {
         this.sar.appendChild(this.name);
         this.paszamine_inputs.appendChild(this.input_text);
         this.paszamine_inputs.appendChild(this.input_ersal);
+        socket.emit("msg_load",this.data.room_name);
+        
+
+    }
+    Chat_Room.prototype.masege_loader = function(data) {
+        let msg_data = data;
+        msg_data.forEach(e => {
+            this.ersalepayam(e);
+        })
+        durum.durum = this.data.room_name;
+    }
+    Chat_Room.prototype.ersalepayam = function(data) {
+        let data_ = data;
+    
+        function MSG(data) {
+            this.data = data;
+            this.styles = {
+                paszamine: `padding: 3px 3px 3px 3px;float: tight;width: auto; height: auto; font-size: 5px;max-width: 80%;`,
+                tarih: ``,
+            }
+            this.paszamine = CrateElement({id: "msg",name: "div",inerhtml: this.data.msg,style: this.styles.paszamine})
+            this.fasele = CrateElement({name: "div",inerhtml: "salam",style: "width: 100px;height: 10px"});
+            if (this.data.id == user.id) {
+                this.paszamine.style.cssText = `padding:3px 3px 3px 3px;width: auto; height: auto; font-size: 20px; max-width: 80%; border-radius: 5px 0px 5px 5px; background-color: ${color.c_1}; color: ${color.c_4};position: relative;margin: 5px 5px 5px 5px ;float: right;text-align: left;display: block;`
+                this.fasele.style.cssText = "width: 100px;height: 10px;float: right";
+            }else {
+                this.paszamine.style.cssText = `padding:3px 3px 3px 3px;width: auto; height: auto; font-size: 20px; max-width: 80%; border-radius: 0px 5px 5px 5px; background-color: ${color.c_3}; color: ${color.c_1};position: relative;margin: 5px 5px 5px 5px ;float: left;text-align: left;display: block`
+                this.fasele.style.cssText = "width: 100px;height: 10px;float: left";
+            }
+
+        }
+
+        let msg = new MSG(data_);
+       
+        this.paszamine_s.appendChild(msg.paszamine);
+        this.paszamine_s.appendChild(msg.fasele);
+        msg.fasele.style.width = (innerWidth-msg.paszamine.getBoundingClientRect().width-10)+"px";
+        msg.fasele.style.height = 1+"px"; 
+
+
     }
 
     this.chat_room;

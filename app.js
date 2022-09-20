@@ -129,6 +129,23 @@ io.on('connection' , (client) => {
         })
     })
     
+    client.on("msg_load",(data) => {
+        fs.readFile(`./database/${data}.txt`,(err,data_) => {
+            client.emit("msg_load",data_.toString());
+        })
+    })
+    client.on("msg_send",(room_name,data) => {
+        fs.readFile(`./database/${room_name}.txt`,(err,data1) => {
+            let data2 = JSON.parse(data1.toString());
+            data2.push(data);
+            fs.writeFile(`./database/${room_name}.txt`,JSON.stringify(data2),(err) => {
+                if(err)throw err;
+                console.log("saved");
+                io.emit("msg_send",room_name,data);
+            })
+        })
+        
+    })
     client.on('disconnect', () => {
         console.log("new websocket disconnected")
     })
